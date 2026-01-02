@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pdf2image import convert_from_bytes
 import pytesseract
@@ -19,19 +19,27 @@ def health_check():
 
 @app.post("/ocr")
 async def ocr_pdf(file: UploadFile = File(...)):
-    # Read uploaded PDF
-    pdf_bytes = await file.read()
+    try:
+        # Read uploaded PDF
+        pdf_bytes = await file.read()
 
-    # Convert ONLY the first page to image
-    images = convert_from_bytes(
-        pdf_bytes,
-        first_page=1,
-        last_page=1
-    )
+        # Convert first page of PDF to image
+        images = convert_from_bytes(
+            pdf_bytes,
+            first_page=1,
+            last_page=1
+        )
 
-    # Run OCR on the first page
-    extracted_text = pytesseract.image_to_string(images[0])
+        # Run OCR on the image
+        extracted_text = pytesseract.image_to_string(images[0])
 
-    return {
-        "text": extracted_text.strip()
-    }
+        return {
+            "text": extracted_text.strip()
+        }
+
+    except Exception as e:
+        # Return the exact error to help debugging
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
