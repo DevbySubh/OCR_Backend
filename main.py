@@ -1,9 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Allow requests from anywhere (we will restrict later)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,3 +13,10 @@ app.add_middleware(
 @app.get("/")
 def health_check():
     return {"status": "Backend is running on Render"}
+
+@app.post("/ocr")
+async def receive_pdf(file: UploadFile = File(...)):
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type
+    }
