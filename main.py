@@ -23,9 +23,10 @@ async def ocr_pdf(file: UploadFile = File(...)):
         # Read uploaded PDF
         pdf_bytes = await file.read()
 
-        # Convert first page of PDF to image
+        # Convert first page of PDF to image (IMPORTANT: higher DPI)
         images = convert_from_bytes(
             pdf_bytes,
+            dpi=300,
             first_page=1,
             last_page=1
         )
@@ -38,7 +39,6 @@ async def ocr_pdf(file: UploadFile = File(...)):
         }
 
     except Exception as e:
-        # Return the exact error to help debugging
         raise HTTPException(
             status_code=500,
             detail=str(e)
