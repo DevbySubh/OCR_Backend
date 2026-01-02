@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# Allow frontend to access backend (restrict later if needed)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,6 +18,6 @@ def health_check():
 @app.post("/ocr")
 async def receive_pdf(file: UploadFile = File(...)):
     return {
-        "filename": file.filename,
-        "content_type": file.content_type
+        "message": "File received successfully",
+        "original_name": file.filename or "uploaded.pdf"
     }
